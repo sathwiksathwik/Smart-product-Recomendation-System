@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Product Recommendation System</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0f172a;
+        --muted: #94a3b8;
+        --text: #e5e7eb;
+        --brand: #22c55e;
+        --accent: #06b6d4;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        --radius: 16px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        color: var(--text);
+        background: radial-gradient(
+          1250px 650px at 10% -10%,
+          #12203a 0%,
+          #0d1324 40%,
+          #0a0f1d 100%
+        );
+      }
+      header.topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(8px);
+        background: rgba(2, 6, 23, 0.8);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .topbar-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 20px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+      }
+      .brand .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, var(--brand), var(--accent));
+        color: #041018;
+      }
+      .btn,
+      .iconbtn,
+      .logout {
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.2s;
+      }
+      .btn {
+        background: linear-gradient(135deg, var(--brand), var(--accent));
+        border: none;
+        color: #041018;
+        padding: 8px 14px;
+      }
+      .iconbtn {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+        border: none;
+        padding: 8px 14px;
+      }
+      .logout {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text);
+        padding: 8px 12px;
+      }
+      .app {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius);
+        padding: 16px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .card img {
+        width: 100%;
+        max-width: 220px;
+        height: 220px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 12px;
+      }
+      .tag {
+        font-size: 0.8rem;
+        background: rgba(16, 185, 129, 0.1);
+        padding: 4px 8px;
+        border-radius: 999px;
+        color: #a7f3d0;
+        border: 1px solid rgba(16, 185, 129, 0.25);
+      }
+      .pill {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(2, 6, 23, 0.4);
+      }
+      .btn-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .searchbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin: 18px auto;
+        max-width: 720px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 999px;
+        padding: 10px 14px;
+      }
+      .searchbar input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--text);
+        font-size: 1rem;
+      }
+      .category-icons {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin: 20px auto;
+      }
+      .cat-icon {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 10px 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .cat-icon:hover,
+      .cat-icon.active {
+        background: linear-gradient(135deg, var(--brand), var(--accent));
+        color: #041018;
+      }
+      .cart-item {
+        width: 100%;
+        max-width: 700px;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .cart-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 4px;
+      }
+      #recommendPage {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px;
+        text-align: center;
+      }
+      #recommendDetails {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 20px;
+        border-radius: 16px;
+        max-width: 600px;
+        box-shadow: var(--shadow);
+      }
+      footer {
+        text-align: center;
+        color: var(--muted);
+        margin: 40px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner app">
+        <div class="brand">
+          <div class="logo">SR</div>
+          Smart Product Recommendation
+        </div>
+        <div style="display: flex; gap: 8px">
+          <button id="logoutBtn" class="logout" style="display: none">
+            ⟲ Logout
+          </button>
+          <button id="cartBtn" class="logout">🛒 View Cart</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="app" id="mainPage">
+      <div class="searchbar">
+        <button class="iconbtn">🎤</button>
+        <input id="searchInput" placeholder="Search products..." />
+        <button class="iconbtn" id="searchBtn">Search</button>
+      </div>
+
+      <div class="category-icons">
+        <div class="cat-icon" onclick="filterCategory('Mobile')">
+          📱 Mobiles
+        </div>
+        <div class="cat-icon" onclick="filterCategory('Laptop')">
+          💻 Laptops
+        </div>
+        <div class="cat-icon" onclick="filterCategory('Audio')">🎧 Audio</div>
+        <div class="cat-icon" onclick="filterCategory('Camera')">
+          📷 Cameras
+        </div>
+        <div class="cat-icon" onclick="filterCategory('Fashion')">
+          👕 Fashion
+        </div>
+        <div class="cat-icon" onclick="filterCategory('Book')">📚 Books</div>
+        <div class="cat-icon" onclick="filterCategory('Appliance')">
+          ⚙️ Appliances
+        </div>
+        <div class="cat-icon" onclick="renderResults()">🌐 All</div>
+      </div>
+
+      <section>
+        <h2>Products</h2>
+        <div class="grid" id="resultsGrid"></div>
+      </section>
+    </main>
+
+    <section
+      id="cartPage"
+      style="
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px;
+      "
+    >
+      <h1>🛒 Your Shopping Cart</h1>
+      <div id="cartContainer"></div>
+      <h3 id="total" style="margin-top: 15px; color: #22c55e"></h3>
+      <button class="btn" id="backBtn">⬅ Back</button>
+    </section>
+
+    <section id="recommendPage">
+      <h1>🔍 Product Recommendation Details</h1>
+      <div id="recommendDetails"></div>
+      <button class="btn" id="recBackBtn">⬅ Back</button>
+    </section>
+
+    <footer>© 2025 Smart Product Recommendation System</footer>
+
+    <script>
+      const CATALOG = [
+        {
+          id: "amz-iphone15",
+          name: "Apple iPhone 15",
+          category: "Mobile",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/71657TiFeHL._SL1500_.jpg",
+          url: "https://amzn.in/d/7xCeIx2",
+          price: 51990,
+          desc: "The superfast chip powers advanced features like computational photography, fluid Dynamic Island transitions, and Voice Isolation for phone calls. 6.1 Super Retina XDR display is up to 2x brighter in the sun compared to iPhone 14.Capture portraits with dramatically more detail and color",
+        },
+        {
+          id: "fk-galaxy",
+          name: "Samsung Galaxy S24 Ultra",
+          category: "Mobile",
+          source: "Flipkart",
+          img: "https://rukminim2.flixcart.com/image/832/832/xif0q/mobile/y/s/g/-original-imahgfmy2zgqvjmy.jpeg?q=70",
+          url: "https://www.flipkart.com/samsung-galaxy-s24-ultra/p/itm60d6a4ba69e8c",
+          price: 87000,
+          desc: "12 GB RAM | 256 GB ROM17.27 cm (6.8 inch) Quad HD+ Display200MP + 50MP + 12MP + 10MP | 12MP Front Camera 5000 mAh Battery Snapdragon 8 Gen 3 Processor",
+        },
+        {
+          id: "amz-macbook",
+          name: "MacBook Air M3",
+          category: "Laptop",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/71eXNIDUGjL._SL1500_.jpg",
+          url: "https://amzn.in/d/2DsemUU",
+          price: 93900,
+          desc: "Apple 2025 MacBook Air (13-inch, Apple M4 chip with 10-core CPU and 8-core GPU, 16GB Unified Memory, 256GB) - Sky Blue  Brand	Apple Model Name	13-inch MacBook Air (M4, 2025) Screen Size	13.6 Inches Colour	Sky Blue Hard Disk Size	256 GB CPU Model	Apple M4 RAM Memory Installed Size	16 GB Operating System	Mac OS Graphics Card Description	Integrated Graphics Coprocessor	Apple Integrated Graphics",
+        },
+        {
+          id: "Sou-shirt",
+          name: "Cotton Linen: Light Green",
+          category: "Fashion",
+          source: "Souled Store",
+          img: "https://prod-img.thesouledstore.com/public/theSoul/uploads/catalog/product/1739774935_1647535.jpg?w=480&dpr=2",
+          url: "https://www.thesouledstore.com/product/solids-light-green-mandarin-shirt?gte=1",
+          price: 1499,
+          desc: "Material & Care: 85% Cotton 15% Linen Machine Wash",
+        },
+        {
+          id: "amz-atomic",
+          name: "Atomic Habits",
+          category: "Book",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/91bYsX41DVL._SL1500_.jpg",
+          url: "https://amzn.in/d/cw88Ol7",
+          price: 399,
+          desc: "Build better habits.",
+        },
+        {
+          id: "amz-purifier",
+          name: "PHILIPS 1000i Series Smart Air Purifier ",
+          category: "Appliance",
+          source: "Croma",
+          img: "https://media-ik.croma.com/prod/https://media.tatacroma.com/Croma%20Assets/Small%20Appliances/Air%20Purifier/Images/303448_0_srfbhg.png?tr=w-640",
+          url: "https://www.croma.com/philips-1000i-series-smart-air-purifier-with-alexa-google-home-enabled-nanoprotect-hepa-technology-white-/p/303448",
+          price: 14800,
+          desc: "Type: Smart Air Purifier Coverage Area: 387.5sqft Filter Type: HEPA Filter, Active Carbon Filter, Pre Filter Clean Air Delivery Rate (CADR): 300 cu.m/hr Power Consumption: 27 Watt Auto Ambient Light, Real Time AQI Display, App Control 2 Years Product Warranty",
+        },
+        {
+          id: "rel-Buds",
+          name: "Samsung Galaxy Buds 3 Pro",
+          category: "Audio",
+          source: "Reliance Digital",
+          img: "https://cdn.jiostore.online/v2/jmd-asp/jdprod/wrkr/products/pictures/item/free/resize-w:450/8RqXsFnf_B-samsung-tws-anc-galaxy-buds3-pro-494443174-i-1-1200wx1200h.jpeg",
+          url: "https://www.reliancedigital.in/product/samsung-galaxy-buds-3-pro-true-wireless-buds-gray-lyre9m-7960698?internal_source=search_collection",
+          price: 20000,
+          desc: "Galaxy AI powered Real-time Interpreter 24-bit Hi-Fi Audio Up to 37 H battery IP7",
+        },
+        {
+          id: "Cro-Camera",
+          name: "GoPro Hero",
+          category: "Cameras",
+          source: "Croma",
+          img: "https://media-ik.croma.com/prod/https://media.tatacroma.com/Croma%20Assets/Imaging/Camera%20and%20Camcorders/Images/300424_0__0PMDfQWpC.png?updatedAt=1758554112861?tr=w-640",
+          url: "https://www.croma.com/gopro-hero12-5-3k-and-27mp-240-fps-waterproof-action-camera-with-voice-control-black-/p/300424",
+          price: 30000,
+          desc: "Waterproof Action Camera with Voice Control (Black) Video Resolution: 5.3K, 240 FPS Effective Pixels: 27 MP Battery: AAA, 1720 mAh TimeWarp3.0, HyperSmooth 6.0 Image Stabilization, Mod Ready 2 Years Product Warranty",
+        },
+        {
+          id: "Rab-shirt",
+          name: "REGULAR FIT PLAIN SHIRT DARK BLUE",
+          category: "Fashion",
+          source: "Rare Rabbit",
+          img: "https://thehouseofrare.com/cdn/shop/files/MERO-25DARKBLUEHM_a1181123-fa55-4119-bd2a-dc2bb0efcd69.webp?v=1762520145",
+          url: "https://thehouseofrare.com/products/mero-25-mens-shirt-dark-blue",
+          price: 2631,
+          desc: "collared neck and button closure provide a classic, polished look suitable for both formal and casual occasions. The striped pattern ensures versatile styling options, Regular Fit Viscose Full Sleeve Button Closure",
+        },
+        {
+          id: "amz-money",
+          name: "The Psychology of Money",
+          category: "Books",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/71XEsXS5RlL._SY425_.jpg",
+          url: "https://amzn.in/d/0LGsWhe",
+          price: 290,
+          desc: "Timeless lessons on wealth, greed, and happiness doing well with money isn?t necessarily about what you know. It?s about how you behave. And behavior is hard to teach, even to really smart people.",
+        },
+        {
+          id: "Cro-Earband",
+          name: "boAt Rockerz 550 ",
+          category: "Audio",
+          source: "Croma",
+          img: "https://media-ik.croma.com/prod/https://media.tatacroma.com/Croma%20Assets/Communication/Headphones%20and%20Earphones/Images/246220_3_brbqou.png?tr=w-640",
+          url: "https://www.croma.com/boat-rockerz-550-bluetooth-headset-with-mic-dual-connectivity-over-ear-red-/p/246220",
+          price: 1800,
+          desc: "Orientation Type: Over Ear Connectivity: Bluetooth, Version 5.0 Battery Life: 20 Hours Playtime Fast Charging: No Noise Cancellation: Noise Isolation Voice Assistant: Google | Siri USP: Immersive Sound, 50mm Dynamic Driver Warranty: 12 Months Warranty",
+        },
+        {
+          id: "Ama-Philips",
+          name: "PHILIPS Air fryer",
+          category: "Appliances",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/41exFmRRtqL._SX569_.jpg",
+          url: "https://amzn.in/d/enH398C",
+          price: 5941,
+          desc: "Philips Airfryer HD9200/90 (Large, 4.1 L) lets you cook great tasting food with up to 90% less fat 60 minutes timer with auto off. Wide temperature control from 80°C to 200 °C. Dishwasher-safe and Easy-to-Clean.",
+        },
+        {
+          id: "Cro-OMEN 16",
+          name: "HP OMEN 16",
+          category: "Laptops",
+          source: "Croma",
+          img: "https://media-ik.croma.com/prod/https://media.tatacroma.com/Croma%20Assets/Computers%20Peripherals/Laptop/Images/317302_0_gPwQt2m3g.png?updatedAt=1760543301649?tr=w-640",
+          url: "https://www.croma.com/hp-omen-16-am0241tx-intel-core-i7-14th-gen-gaming-laptop-24gb-1tb-ssd-windows-11-home-8gb-graphics-16-inch-165-hz-2k-ips-display-nvidia-geforce-rtx-5050-ms-office-home-2024-shadow-black-2-43-kg-/p/317302",
+          price: 137990,
+          desc: "HP OMEN 16-am0241TX Intel Core i7 14th Gen Gaming Laptop (24GB, 1TB SSD, Windows 11 Home, 8GB Graphics, 16 inch 165 Hz 2K IPS Display, NVIDIA GeForce RTX 5050, MS Office Home 2024, Shadow Black, 2.43 KG)",
+        },
+        {
+          id: "cro-mobile",
+          name: "SAMSUNG Galaxy A26 5G",
+          category: "Mobiles",
+          source: "Croma",
+          img: "https://media-ik.croma.com/prod/https://media.tatacroma.com/Croma%20Assets/Communication/Mobiles/Images/314766_0_bi58ur.png?tr=w-640",
+          url: "https://www.croma.com/samsung-galaxy-a26-5g-8gb-ram-128gb-awesome-white-/p/314766",
+          price: 25000,
+          desc: "Display: 6.65 inches (16.91 cm), Super AMOLED, 120 Hz Refresh Rate Memory: 8GB RAM, 128GB ROM Processor: Samsung Exynos 1380, Octa Core, 2.4 GHz Camera: 50 MP + 8 MP + 2 MP Triple Rear & 13 MP Front Camera Battery: 5000 mAh",
+        },
+        {
+          id: "Ama-Book",
+          name: "Don't Believe Everything You Think",
+          category: "Books",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/715qi-cIbML._SY425_.jpg",
+          url: "https://amzn.in/d/eXKDVtp",
+          price: 184,
+          desc: "Discover how to conquer anxiety, self-doubt, and self-sabotage without depending on motivation or willpower. 'Don't Believe Everything You Think' uncovers the core of psychological suffering and offers insights to effortlessly shape the life you crave.",
+        },
+        {
+          id: "Rel-Camera",
+          name: "Nikon Z 5 Mirrorless Camera",
+          category: "Cameras",
+          source: "Reliance Digital",
+          img: "https://cdn.jiostore.online/v2/jmd-asp/jdprod/wrkr/products/pictures/item/free/resize-w:450/VZVSUTzcci-nikon-z-5-dslr-cameras-491898117-i-1-1200wx1200h.jpeg",
+          url: "https://www.reliancedigital.in/product/nikon-z-5-mirrorless-camera-with-24-70-mm-lens-kit?internal_source=search_results",
+          price: 148990,
+          desc: "Digital Camera with Support for Interchangeable Lenses Hybrid Phase-Detection/Contrast AF with AF Assist 24.3 million Effective Pixels USB-Type C, HDMI (Type C) Connector",
+        },
+        {
+          id: "Ama-camera",
+          name: "Trueview 3MP",
+          category: "Cameras",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/31TSA0om+pL._SY300_SX300_QL70_FMwebp_.jpg",
+          url: "https://amzn.in/d/9qHHwQD",
+          price: 1600,
+          desc: "Trueview 3MP Smart CCTV Wi-fi Home Security Camera, 360° View, 2 Way Talk, Cloud Monitor, Detect, Supports SD Card Up to 256 GB, Night Vision, Alexa & Ok Google",
+        },
+        {
+          id: "Ama-Juice",
+          name: "NutriPro Juicer",
+          category: "Appliances",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/71rH4vEE4nL._SX569_.jpg",
+          url: "https://amzn.in/d/0wZV87K",
+          price: 1600,
+          desc: "utriPro Juicer Mixer Grinder - Smoothie Maker - 500 Watts (2 Jars & 1 Blade, Silver) - 2 Year Warranty Visit the nutripro Store",
+        },
+        {
+          id: "Rel-Wash",
+          name: "Faber 14 Place Setting Under-Counter Dishwasher",
+          category: "Appliances",
+          source: "Reliance Digital",
+          img: "https://cdn.jiostore.online/v2/jmd-asp/jdprod/wrkr/products/pictures/item/free/resize-w:450/Y2AzEv7Ncj-faber-ffsd-8pr-14s-bk-dishwashers-491891962-i-1-1200wx1200h.jpeg",
+          url: "https://www.reliancedigital.in/product/faber-14-place-dishwasher-ffsd8pr14s-black?internal_source=search_results",
+          price: 49490,
+          desc: "Faber 14 Place Setting Under-Counter Dishwasher with Multi-function Three Layer Cutlery Basket, FFSD 8PR 14S BK Black",
+        },
+        {
+          id: "Lif-Shirt",
+          name: "FORCA NXT Embossed T-shirt",
+          category: "Fashions",
+          source: "Lifestyle",
+          img: "https://media.landmarkshops.in/cdn-cgi/image/h=1200,w=1200,q=85,fit=cover/lifestyle/1000014683271-Black-Black-1000014683271_01-2100.jpg",
+          url: "https://www.lifestylestores.com/in/en/SHOP-Forca-Black-FORCA-NXT-Embossed-T-shirt-For-Men/p/1000014683271-Black-Black",
+          price: 631,
+          desc: "This embossed T-shirt is a casual wardrobe staple, featuring a classic crew neck and half sleeves for a relaxed fit. The eye-catching design adds a fun touch, making it perfect for everyday wear. Crafted from soft fabric, it ensures all-day comfort",
+        },
+        {
+          id: "Ama-Lap",
+          name: "Lenovo IdeaPad 1 ",
+          category: "Laptops",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/71xHNSCyRsL._SX679_.jpg",
+          url: "https://amzn.in/d/aDfGyWQ",
+          price: 34100,
+          desc: "Lenovo IdeaPad 1 AMD Ryzen 5 5500U 15.6 HD Thin and Light Laptop (8GB RAM/512GB SSD/Windows 11 Home/Office Home 2024/1 Year ADP Free/Grey/1.6Kg), 82R4011MIN",
+        },
+        {
+          id: "Ama-Ptron",
+          name: "pTron Bassbuds",
+          category: "Audio",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/6194kVLSt9L._SX569_.jpg",
+          url: "https://amzn.in/d/1JlKq4W",
+          price: 700,
+          desc: "pTron Bassbuds Fury in-Ear TWS Earbuds with 13mm Drivers, 50Hrs Playtime, AI-ENC Clear Calls, Bluetooth V5.4 Wireless Headphones, Voice Assistant, Type C Charging & IPX5 Water Resistant (Black)",
+        },
+        {
+          id: "Az-Ego",
+          name: "EGO IS THE ENEMY",
+          category: "Books",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/71XJ8xwLPpL._SL1500_.jpg",
+          url: "https://amzn.in/d/fTqBeN6",
+          price: 420,
+          desc: "EGO IS THE ENEMY [Hardcover] Holiday, Ryan",
+        },
+        {
+          id: "Az-Mahabharata",
+          name: "Mahabharata: The Great Indian Epic",
+          category: "Books",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/816mUSrIprL._SL1500_.jpg",
+          url: "https://amzn.in/d/b37E2Qn",
+          price: 199,
+          desc: "Mahabharata: The Great Indian Epic by Sudarshan Ray - English | Paperback | Book on Ancient Indian Stories about Pandavas and Kauravas | Kurukshetra War | Greatest Epic of India",
+        },
+        {
+          id: "Az-NTMY",
+          name: "NTMY Personal Air Cooler",
+          category: "Appliances",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/81lgCE+FjdS._SL1500_.jpg",
+          url: "https://amzn.in/d/eAjPGra",
+          price: 450,
+          desc: "NTMY Personal Air Cooler, Portable Air Conditioner Fan, Mini Evaporative Cooler with 7 Colors LED Light, 1/2/3 H Timer, 3 Wind Speeds and 3 Spray Modes for Your Desk, Nightstand, or Coffee Table",
+        },
+        {
+          id: "Az-Lymio",
+          name: "Lymio Men Cargo",
+          category: "Fashion",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/61LRLtrlZOL._SY879_.jpg",
+          url: "https://amzn.in/d/4hbd5My",
+          price: 749,
+          desc: "Lymio Men Cargo || Men Cargo Pants || Men Cargo Pants Cotton || Cargos for Men (Cargo-117-120)",
+        },
+        {
+          id: "Az-Sony",
+          name: "Sony Alpha ILCE",
+          category: "Cameras",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/71-E+cXcs1L._SX679_.jpg",
+          url: "https://amzn.in/d/dHcf408",
+          price: 88489,
+          desc: "Sony Alpha ILCE-6400M 24.2MP Mirrorless Digital SLR Camera (Black) with 18-135mm Zoom Lens | APS-C Sensor |Real-Time Eye Auto Focus | 4K Vlogging Camera | Tiltable LCD - Black",
+        },
+        {
+          id: "Az-Fujifilm",
+          name: "Fujifilm X Half 17.7MP",
+          category: "Cameras",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/71Rtu3JJLhL._SX679_.jpg",
+          url: "https://amzn.in/d/hdfOo1m",
+          price: 64349,
+          desc: "Fujifilm X Half 17.7MP 1 inch CMOS Sensor with 10.8mm f/2.8-11 Lens|Retro Style mirrorless Compact Travel Camera|2k vlogging for Street/Lifestyle - Silver",
+        },
+        {
+          id: "Az-Boult",
+          name: "Boult GOBOULT",
+          category: "Audio",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/71rbNPgK-RL._SX425_.jpg",
+          url: "https://amzn.in/d/25xfbZd",
+          price: 1499,
+          desc: "Boult GOBOULT (Formerly Mustang Torq Wireless in Ear Earbuds with 60H Playtime, App Support, Quad Mic ENC, 45ms Low Latency, 13mm Driver, Breathing LEDs, Made in India Ear Buds Wireless (Yellow)",
+        },
+        {
+          id: "Az-Lenevo",
+          name: "Lenovo Chromebook",
+          category: "Laptops",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/61QY1NrWQBL._SX679_.jpg",
+          url: "https://amzn.in/d/iSu30Tk",
+          price: 14990,
+          desc: "Lenovo {SmartChoice)Chromebook Intel Celeron N4500 (4GB RAM/64GB eMMC 5.1/11.6 Inch (29.46cm)/HD Display/2Wx2 Stereo Speakers/HD Camera/Chrome OS/Blue/1.21Kg), 82UY0014HA",
+        },
+        {
+          id: "Az-10",
+          name: "Iqoo Z10",
+          category: "Mobiles",
+          source: "Amazon",
+          img: "https://m.media-amazon.com/images/I/61cwB-UmBQL._SX569_.jpg",
+          url: "https://amzn.in/d/c7wBD7S",
+          price: 20998,
+          desc: "iQOO Z10 5G (Stellar Black, 8GB RAM, 128GB Storage) | India's Biggest Ever 7300 mAh Battery | Snapdragon 7s Gen 3 Processor | Brightest Quad Curved AMOLED Display in The Segment",
+        },
+      ];
+
+      let CART = JSON.parse(localStorage.getItem("sprs_cart") || "[]");
+
+      function saveCart() {
+        localStorage.setItem("sprs_cart", JSON.stringify(CART));
+      }
+
+      function showToast(message, color = "var(--brand)") {
+        const toast = document.createElement("div");
+        toast.textContent = message;
+        toast.style.position = "fixed";
+        toast.style.bottom = "30px";
+        toast.style.right = "30px";
+        toast.style.background = color;
+        toast.style.color = "#041018";
+        toast.style.padding = "12px 20px";
+        toast.style.borderRadius = "10px";
+        toast.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
+        toast.style.fontWeight = "600";
+        toast.style.zIndex = "9999";
+        toast.style.opacity = "0";
+        toast.style.transition = "opacity 0.3s ease";
+        document.body.appendChild(toast);
+        setTimeout(() => (toast.style.opacity = "1"), 100);
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          setTimeout(() => toast.remove(), 500);
+        }, 2000);
+      }
+
+      function addToCart(id) {
+        const p = CATALOG.find((x) => x.id === id);
+        if (!p) return;
+        if (CART.some((x) => x.id === id))
+          return showToast("⚠️ Already in cart", "#facc15");
+        CART.push(p);
+        saveCart();
+        showToast(`${p.name} added to cart ✅`);
+      }
+
+      function renderCart() {
+        const c = document.getElementById("cartContainer");
+        const t = document.getElementById("total");
+        if (!CART.length) {
+          c.innerHTML = "<p>Your cart is empty.</p>";
+          t.textContent = "";
+          return;
+        }
+        c.innerHTML = CART.map(
+          (p, i) => `
+            <div class="cart-item">
+              <img src="${p.img}" alt="${p.name}">
+              <span>
+                <b>${p.name}</b><br>
+                Source: ${p.source}<br>
+                ₹${p.price}
+              </span>
+              <button class="btn" onclick="window.open('${p.url}','_blank')">Buy</button>
+              <button class="iconbtn" onclick="removeItem(${i})">❌ Remove</button>
+            </div>`
+        ).join("");
+        const totalPrice = CART.reduce((a, b) => a + b.price, 0);
+        t.textContent = "Total: ₹" + totalPrice.toLocaleString("en-IN");
+      }
+
+      function removeItem(i) {
+        CART.splice(i, 1);
+        saveCart();
+        renderCart();
+        showToast("🗑️ Item removed", "#f87171");
+      }
+
+      function showRecommendation(id) {
+        const p = CATALOG.find((x) => x.id === id);
+        document.getElementById("mainPage").style.display = "none";
+        document.getElementById("cartPage").style.display = "none";
+        document.getElementById("recommendPage").style.display = "flex";
+        document.getElementById("recommendDetails").innerHTML = `
+          <img src="${p.img}" width="200"><h2>${p.name}</h2>
+          <p>${p.desc}</p>
+          <p><b>Price:</b> ₹${p.price}</p>
+          <p><b>Source:</b> ${p.source}</p>
+          <div class="btn-row">
+            <button class="btn" onclick="window.open('${p.url}','_blank')">🛍️ Buy</button>
+            <button class="iconbtn" onclick="addToCart('${p.id}')">🛒 Add</button>
+          </div>
+        `;
+      }
+
+      function filterCategory(cat) {
+        document
+          .querySelectorAll(".cat-icon")
+          .forEach((el) => el.classList.remove("active"));
+        event.target.classList.add("active");
+        const filtered = CATALOG.filter((p) =>
+          p.category.toLowerCase().includes(cat.toLowerCase())
+        );
+        renderResults(filtered);
+      }
+
+      function renderResults(list = CATALOG) {
+        document.getElementById("resultsGrid").innerHTML = list
+          .map(
+            (p) => `<div class="card">
+            <img src="${p.img}" alt="${p.name}">
+            <div style="display:flex;justify-content:space-between;width:100%;">
+              <span class='tag'>${p.source}</span>
+              <span class='pill'>₹${p.price}</span>
+            </div>
+            <h3>${p.name}</h3>
+            <div class="btn-row">
+              <button class='btn' onclick="window.open('${p.url}','_blank')">🛍️ Buy</button>
+              <button class='iconbtn' onclick="addToCart('${p.id}')">🛒 Add</button>
+              <button class='iconbtn' onclick="showRecommendation('${p.id}')">🔍 Recommend</button>
+            </div>
+          </div>`
+          )
+          .join("");
+      }
+
+      document.getElementById("searchBtn").addEventListener("click", () => {
+        const query = document
+          .getElementById("searchInput")
+          .value.trim()
+          .toLowerCase();
+        if (query === "") {
+          showToast("Please enter a product name 🔎", "#facc15");
+          return renderResults();
+        }
+        const filtered = CATALOG.filter(
+          (p) =>
+            p.name.toLowerCase().includes(query) ||
+            p.category.toLowerCase().includes(query) ||
+            p.desc.toLowerCase().includes(query)
+        );
+        if (filtered.length === 0) {
+          showToast("❌ No matching products found", "#f87171");
+          document.getElementById("resultsGrid").innerHTML =
+            "<p>No products found.</p>";
+        } else {
+          renderResults(filtered);
+        }
+      });
+
+      document
+        .getElementById("searchInput")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") document.getElementById("searchBtn").click();
+        });
+
+      document.getElementById("recBackBtn").onclick = () => {
+        document.getElementById("recommendPage").style.display = "none";
+        document.getElementById("mainPage").style.display = "block";
+      };
+
+      document.getElementById("cartBtn").onclick = () => {
+        document.getElementById("mainPage").style.display = "none";
+        document.getElementById("recommendPage").style.display = "none";
+        document.getElementById("cartPage").style.display = "flex";
+        renderCart();
+      };
+
+      document.getElementById("backBtn").onclick = () => {
+        document.getElementById("cartPage").style.display = "none";
+        document.getElementById("mainPage").style.display = "block";
+      };
+
+      renderResults();
+    </script>
+  </body>
+</html>
